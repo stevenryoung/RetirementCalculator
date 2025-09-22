@@ -12,6 +12,7 @@ const AccountManager = ({ accounts, onAddAccount, onUpdateAccount, onRemoveAccou
     annualContribution: 0,
     employerMatch: 0,
     monthlyBenefit: 0, // For pensions
+    hsaType: 'single', // For HSA accounts
     description: ''
   });
 
@@ -34,6 +35,7 @@ const AccountManager = ({ accounts, onAddAccount, onUpdateAccount, onRemoveAccou
       annualContribution: 0,
       employerMatch: 0,
       monthlyBenefit: 0,
+      hsaType: 'single',
       description: ''
     });
     setEditingAccount(null);
@@ -75,8 +77,8 @@ const AccountManager = ({ accounts, onAddAccount, onUpdateAccount, onRemoveAccou
     }).format(amount);
   };
 
-  const getContributionLimitInfo = (accountType) => {
-    const limit = getContributionLimit(accountType, userProfile.currentAge);
+  const getContributionLimitInfo = (accountType, hsaType = 'single') => {
+    const limit = getContributionLimit(accountType, userProfile.currentAge, hsaType);
     return limit > 0 ? `(Limit: ${formatCurrency(limit)})` : '';
   };
 
@@ -197,6 +199,22 @@ const AccountManager = ({ accounts, onAddAccount, onUpdateAccount, onRemoveAccou
                   placeholder="e.g., Fidelity 401k, Wells Fargo IRA"
                 />
               </div>
+
+              {newAccount.type === ACCOUNT_TYPES.HSA && (
+                <div className="form-group">
+                  <label>HSA Coverage Type</label>
+                  <select
+                    value={newAccount.hsaType}
+                    onChange={(e) => setNewAccount(prev => ({ ...prev, hsaType: e.target.value }))}
+                  >
+                    <option value="single">Single Coverage</option>
+                    <option value="family">Family Coverage</option>
+                  </select>
+                  <small style={{ color: '#666', fontSize: '12px' }}>
+                    Family coverage has higher contribution limits
+                  </small>
+                </div>
+              )}
             </div>
 
             {!isPensionOrSS(newAccount.type) && (
@@ -216,7 +234,7 @@ const AccountManager = ({ accounts, onAddAccount, onUpdateAccount, onRemoveAccou
 
                   <div className="form-group">
                     <label>
-                      Annual Contribution {getContributionLimitInfo(newAccount.type)}
+                      Annual Contribution {getContributionLimitInfo(newAccount.type, newAccount.hsaType)}
                     </label>
                     <input
                       type="number"

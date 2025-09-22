@@ -18,7 +18,10 @@ export const CONTRIBUTION_LIMITS = {
   [ACCOUNT_TYPES.ROTH_401K]: { base: 23000, catchup: 7500, catchupAge: 50 },
   [ACCOUNT_TYPES.TRADITIONAL_IRA]: { base: 7000, catchup: 1000, catchupAge: 50 },
   [ACCOUNT_TYPES.ROTH_IRA]: { base: 7000, catchup: 1000, catchupAge: 50 },
-  [ACCOUNT_TYPES.HSA]: { base: 4300, catchup: 1000, catchupAge: 55 }
+  [ACCOUNT_TYPES.HSA]: { 
+    single: { base: 4300, catchup: 1000, catchupAge: 55 },
+    family: { base: 8550, catchup: 1000, catchupAge: 55 }
+  }
 };
 
 // Tax brackets for 2024 (simplified)
@@ -125,7 +128,7 @@ export function projectAccountBalance(account, currentAge, projectionYears, assu
   
   for (let year = 0; year <= projectionYears; year++) {
     const age = currentAge + year;
-    const contributionLimit = getContributionLimit(account.type, age);
+    const contributionLimit = getContributionLimit(account.type, age, account.hsaType);
     const annualContribution = Math.min(account.annualContribution || 0, contributionLimit);
     
     // Add contribution at beginning of year
@@ -154,9 +157,15 @@ export function projectAccountBalance(account, currentAge, projectionYears, assu
 }
 
 // Get contribution limit for account type and age
-export function getContributionLimit(accountType, age) {
+export function getContributionLimit(accountType, age, hsaType = 'single') {
   const limits = CONTRIBUTION_LIMITS[accountType];
   if (!limits) return 0;
+  
+  // Handle HSA special case with family/single distinction
+  if (accountType === ACCOUNT_TYPES.HSA) {
+    const hsaLimits = limits[hsaType] || limits.single;
+    return age >= hsaLimits.catchupAge ? hsaLimits.base + hsaLimits.catchup : hsaLimits.base;
+  }
   
   const baseLimit = limits.base;
   const catchupAge = limits.catchupAge;
@@ -182,7 +191,7 @@ export function calculateRetirementIncome(accounts, userProfile, assumptions) {
       annualIncomeStreams += account.monthlyBenefit * 12;
     } else if (account.type === ACCOUNT_TYPES.SOCIAL_SECURITY) {
       const ssaBenefit = calculateSocialSecurityBenefit(
-        userProfile.averageIncome / 12, 
+        userProfile.currentIncome / 12, 
         retirementAge
       );
       annualIncomeStreams += ssaBenefit;
