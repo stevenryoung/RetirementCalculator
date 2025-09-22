@@ -11,16 +11,14 @@ function App() {
     retirementAge: 65,
     deathAge: 85,
     maritalStatus: 'single',
-    currentIncome: 75000,
-    averageIncome: 75000
+    currentIncome: 75000
   });
 
   const [accounts, setAccounts] = useState([]);
   
   const [assumptions, setAssumptions] = useState({
     returnRate: 0.07,
-    inflationRate: 0.03,
-    taxRate: 0.22
+    inflationRate: 0.03
   });
 
   const [results, setResults] = useState(null);

@@ -81,19 +81,6 @@ const UserProfileForm = ({ userProfile, onUpdate, assumptions, onUpdateAssumptio
             placeholder="e.g., 75000"
           />
         </div>
-
-        <div className="form-group">
-          <label htmlFor="averageIncome">Average Career Income (for Social Security)</label>
-          <input
-            type="number"
-            id="averageIncome"
-            value={userProfile.averageIncome}
-            onChange={(e) => handleProfileChange('averageIncome', e.target.value)}
-            min="0"
-            step="1000"
-            placeholder="e.g., 75000"
-          />
-        </div>
       </div>
 
       <h3>📈 Investment Assumptions</h3>
@@ -127,22 +114,6 @@ const UserProfileForm = ({ userProfile, onUpdate, assumptions, onUpdateAssumptio
           />
           <small style={{ color: '#666', fontSize: '12px' }}>
             Historical average: ~3%
-          </small>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="taxRate">Expected Tax Rate in Retirement</label>
-          <input
-            type="number"
-            id="taxRate"
-            value={(assumptions.taxRate * 100).toFixed(0)}
-            onChange={(e) => handleAssumptionChange('taxRate', (parseFloat(e.target.value) || 0) / 100)}
-            min="0"
-            max="50"
-            step="1"
-          />
-          <small style={{ color: '#666', fontSize: '12px' }}>
-            Your marginal tax rate in retirement
           </small>
         </div>
       </div>
